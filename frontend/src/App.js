@@ -1,52 +1,87 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import './App.css';
+import Header from './components/Header';
+import HeroSection from './components/HeroSection';
+import FounderSection from './components/FounderSection';
+import FeaturesSection from './components/FeaturesSection';
+import SuccessStoriesSection from './components/SuccessStoriesSection';
+import CommunitySection from './components/CommunitySection';
+import PricingSection from './components/PricingSection';
+import AppDownloadSection from './components/AppDownloadSection';
+import Footer from './components/Footer';
+import RegisterModal from './components/RegisterModal';
+import LoginModal from './components/LoginModal';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+function App() {
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
+  const handleOpenRegister = () => {
+    setIsLoginOpen(false);
+    setIsRegisterOpen(true);
   };
 
+  const handleOpenLogin = () => {
+    setIsRegisterOpen(false);
+    setIsLoginOpen(true);
+  };
+
+  const handleCloseRegister = () => {
+    setIsRegisterOpen(false);
+  };
+
+  const handleCloseLogin = () => {
+    setIsLoginOpen(false);
+  };
+
+  // Smooth scroll for anchor links
   useEffect(() => {
-    helloWorldApi();
+    const handleAnchorClick = (e) => {
+      const target = e.target.closest('a[href^="#"]');
+      if (target) {
+        e.preventDefault();
+        const id = target.getAttribute('href').slice(1);
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick);
+    return () => document.removeEventListener('click', handleAnchorClick);
   }, []);
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+    <div className="min-h-screen bg-white">
+      <Header 
+        onOpenRegister={handleOpenRegister} 
+        onOpenLogin={handleOpenLogin} 
+      />
+      
+      <main>
+        <HeroSection onOpenRegister={handleOpenRegister} />
+        <FounderSection />
+        <FeaturesSection />
+        <SuccessStoriesSection />
+        <CommunitySection />
+        <PricingSection />
+        <AppDownloadSection />
+      </main>
 
-function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <Footer />
+
+      {/* Modals */}
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={handleCloseRegister}
+        onSwitchToLogin={handleOpenLogin}
+      />
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={handleCloseLogin}
+        onSwitchToRegister={handleOpenRegister}
+      />
     </div>
   );
 }
